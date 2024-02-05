@@ -35,8 +35,22 @@
 #include <SoftwareSerial.h>
 #include <virtuabotixRTC.h> //RTC
 
-//Regel voor alle definities (#define): de naam in hoofdletters met liggende streepjes "_" als spaties
-//vb: DIT_IS_EEN_MACRO
+/*  
+    _ _  _ ____ ___ ____ _    _    _ _  _ ____ ____ _  _ 
+    | |\ | [__   |  |___ |    |    | |\ | | __ |___ |\ | 
+    | | \| ___]  |  |___ |___ |___ | | \| |__] |___ | \| 
+*/
+//We gaan in twee fases meten:
+//fase 1 is meteen na vertrek en voor het grootste deel van de vlucht. Hier verzamelen we data over het magneetveld en de straling
+//fase 2 moet zo getimed worden dat die begint op het moment dat de raket terug de atmosfeer in gaat
+//we meten dan de versnelling en de oriëntatie
+#define SECOND_PHASE_START 48000000 //uitgedrukt in millisecoden
+
+//Dit zijn instellingen voor debugging
+//je kan dus apart de serial output, imu en iridium aan en uit zetten om te testen
+const bool useSerial PROGMEM = true;
+const bool useIMU PROGMEM = true;
+const bool useIridium PROGMEM = true;
 
 
 //Hier definieren we wat naar welke pin gaat
@@ -52,6 +66,7 @@
 #define SIGN_PIN 2
 #define NOISE_PIN 8
 
+//Heel belangrijk: het debug ledje
 #define DEBUG_LED 3
 
 //I2C communicatieadressen worden hier gespecifieerd
@@ -60,18 +75,6 @@
 //Define imu addresses
 #define LSM9DS1_M   0x1E
 #define LSM9DS1_AG  0x6B
-
-//We gaan in twee fases meten:
-//fase 1 is meteen na vertrek en voor het grootste deel van de vlucht. Hier verzamelen we data over het magneetveld en de straling
-//fase 2 moet zo getimed worden dat die begint op het moment dat de raket terug de atmosfeer in gaat
-//we meten dan de versnelling en de oriëntatie
-#define SECOND_PHASE_START 48000000 //uitgedrukt in millisecoden
-
-//Dit zijn instellingen voor debugging
-//je kan dus apart de serial output, imu en iridium aan en uit zetten om te testen
-const bool useSerial PROGMEM = true;
-const bool useIMU PROGMEM = true;
-const bool useIridium PROGMEM = true;
 
 //Variables voor timing
 unsigned long previousSSDMillis = 0;
@@ -106,8 +109,8 @@ struct data {
 };
 data measurements;
 //hier maken we ruimte vrij voor de data die we in een bericht gaan versturen
-char firstPhaseDataToSendInMessage[18][16];
-char secondPhaseDataToSendInMessage[8][36];
+char firstPhaseDataToSendInMessage[10][16];
+char secondPhaseDataToSendInMessage[13][24];
 //tellen hoeveel keer we de data al gemeten hebben
 int firstPhaseDataCounter = 0;
 int secondPhaseDataCounter = 0;
@@ -158,13 +161,13 @@ void loop()
 
   //om de tien seconden versturen we een bericht
   //de senddata functie staat in het document iridium.ino
-  //kijk daar voor meer informatie over deze functie en vragen stellen aan Yves
-  if (firstPhaseDataCounter == 18) {
+  //kijk daar voor meer informatie over deze functie
+  if (firstPhaseDataCounter == 10) {
     firstPhaseDataCounter = 0;
-    Serial.println(F("Sending message 1!"));
+    if (useSerial) Serial.println(F("Sending message 1!"));
     sendPhaseOneData();
   }
-  if(secondPhaseDataCounter == 8) {
+  if(secondPhaseDataCounter == 13) {
     secondPhaseDataCounter = 0;
     Serial.println(F("Sending message 2!"));
     sendPhaseTwoData();

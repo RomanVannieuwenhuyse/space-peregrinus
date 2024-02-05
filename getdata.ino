@@ -69,14 +69,9 @@ void getdata(){
 
 void secondPhaseGetData()
 {
-  if(currentMillis - previousDataMillis > 1112){
-    imu.readMag();
+  if(currentMillis - previousDataMillis > 769){
     imu.readGyro();
     imu.readAccel();
-
-    measurements.mag_x = imu.calcMag(imu.mx);
-    measurements.mag_y = imu.calcMag(imu.my);
-    measurements.mag_z = imu.calcMag(imu.mz);
     
     measurements.gyro_x = imu.calcGyro(imu.gx);
     measurements.gyro_y = imu.calcGyro(imu.gy);
@@ -86,18 +81,17 @@ void secondPhaseGetData()
     measurements.accel_y = imu.calcAccel(imu.ay);
     measurements.accel_z = imu.calcAccel(imu.az);
 
-    char measurementData[36] = {f_getBits(measurements.mag_x).arr[0], f_getBits(measurements.mag_x).arr[1], f_getBits(measurements.mag_x).arr[2], f_getBits(measurements.mag_x).arr[3], f_getBits(measurements.mag_y).arr[0], f_getBits(measurements.mag_y).arr[1], f_getBits(measurements.mag_y).arr[2], f_getBits(measurements.mag_y).arr[3], f_getBits(measurements.mag_z).arr[0], f_getBits(measurements.mag_z).arr[1], f_getBits(measurements.mag_z).arr[2], f_getBits(measurements.mag_z).arr[3], f_getBits(measurements.gyro_x).arr[0], f_getBits(measurements.gyro_x).arr[1], f_getBits(measurements.gyro_x).arr[2], f_getBits(measurements.gyro_x).arr[3], f_getBits(measurements.gyro_y).arr[0], f_getBits(measurements.gyro_y).arr[1], f_getBits(measurements.gyro_y).arr[2], f_getBits(measurements.gyro_y).arr[3], f_getBits(measurements.gyro_z).arr[0], f_getBits(measurements.gyro_z).arr[1], f_getBits(measurements.gyro_z).arr[2], f_getBits(measurements.gyro_z).arr[3], f_getBits(measurements.accel_x).arr[0], f_getBits(measurements.accel_x).arr[1], f_getBits(measurements.accel_x).arr[2], f_getBits(measurements.accel_x).arr[3], f_getBits(measurements.accel_y).arr[0], f_getBits(measurements.accel_y).arr[1], f_getBits(measurements.accel_y).arr[2], f_getBits(measurements.accel_y).arr[3], f_getBits(measurements.accel_z).arr[0], f_getBits(measurements.accel_z).arr[1], f_getBits(measurements.accel_z).arr[2], f_getBits(measurements.accel_z).arr[3]};
-    Serial.println(F("Measured data 2:"));
-    Serial.println(measurements.mag_x);
-    Serial.println(measurements.mag_y);
-    Serial.println(measurements.mag_z);
-    Serial.println(measurements.gyro_x);
-    Serial.println(measurements.gyro_y);
-    Serial.println(measurements.gyro_z);
-    Serial.println(measurements.accel_x);
-    Serial.println(measurements.accel_y);
-    Serial.println(measurements.accel_z);
-    memcpy(secondPhaseDataToSendInMessage[secondPhaseDataCounter], measurementData, 36);
+    char measurementData[24] = {f_getBits(measurements.gyro_x).arr[0], f_getBits(measurements.gyro_x).arr[1], f_getBits(measurements.gyro_x).arr[2], f_getBits(measurements.gyro_x).arr[3], f_getBits(measurements.gyro_y).arr[0], f_getBits(measurements.gyro_y).arr[1], f_getBits(measurements.gyro_y).arr[2], f_getBits(measurements.gyro_y).arr[3], f_getBits(measurements.gyro_z).arr[0], f_getBits(measurements.gyro_z).arr[1], f_getBits(measurements.gyro_z).arr[2], f_getBits(measurements.gyro_z).arr[3], f_getBits(measurements.accel_x).arr[0], f_getBits(measurements.accel_x).arr[1], f_getBits(measurements.accel_x).arr[2], f_getBits(measurements.accel_x).arr[3], f_getBits(measurements.accel_y).arr[0], f_getBits(measurements.accel_y).arr[1], f_getBits(measurements.accel_y).arr[2], f_getBits(measurements.accel_y).arr[3], f_getBits(measurements.accel_z).arr[0], f_getBits(measurements.accel_z).arr[1], f_getBits(measurements.accel_z).arr[2], f_getBits(measurements.accel_z).arr[3]};
+    if(useSerial){
+      Serial.println(F("Measured data 2:"));
+      Serial.println(measurements.gyro_x);
+      Serial.println(measurements.gyro_y);
+      Serial.println(measurements.gyro_z);
+      Serial.println(measurements.accel_x);
+      Serial.println(measurements.accel_y);
+      Serial.println(measurements.accel_z);
+    }
+    memcpy(secondPhaseDataToSendInMessage[secondPhaseDataCounter], measurementData, 24);
     secondPhaseDataCounter++;
     previousDataMillis = currentMillis;
   }
